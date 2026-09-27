@@ -3,6 +3,7 @@ import json
 import time
 import websockets
 
+
 WS_URL = (
     "wss://fstream.binance.com/stream"
     "?streams=btcusdt@bookTicker/btcusdt@aggTrade"
@@ -38,12 +39,12 @@ async def collect():
                     data = message_data["data"]
 
                     # Best bid / ask
-                    if stream.endswith("@bookTicker"):
+                    if stream.lower().endswith("@bookticker"):
                         latest_bid = float(data["b"])
                         latest_ask = float(data["a"])
 
                     # Aggregated trades
-                  elif stream.lower().endswith("@aggtrade"):
+                    elif stream.lower().endswith("@aggtrade"):
                         quantity = float(data["q"])
 
                         trade_count += 1
