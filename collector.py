@@ -190,7 +190,8 @@ async def collect():
 
                         stream = message_data["stream"]
                         data = message_data["data"]
-                        print(f"DEBUG STREAM: {stream}", flush=True)
+                        if not stream.endswith("@bookTicker"):
+                            print(f"DEBUG OTHER STREAM: {stream}", flush=True)
 
                         if stream.endswith("@bookTicker"):
                             latest_bid = float(data["b"])
