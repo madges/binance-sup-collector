@@ -1,1 +1,1 @@
-# Binance-Sup Python dependencies
+websockets>=15,<16
