@@ -3,18 +3,18 @@ import json
 import websockets
 
 
-WS_URL = "wss://fstream.binance.com/ws/btcusdt@aggTrade"
+WS_URL = "wss://fstream.binance.com/ws/btcusdt@trade"
 
 
 async def collect():
-    print("BINANCE-SUP AGGTRADE TEST STARTED", flush=True)
+    print("BINANCE-SUP TRADE TEST STARTED", flush=True)
 
     while True:
         try:
-            print("Connecting to BTCUSDT aggTrade...", flush=True)
+            print("Connecting to BTCUSDT trade stream...", flush=True)
 
             async with websockets.connect(WS_URL) as websocket:
-                print("CONNECTED TO AGGTRADE", flush=True)
+                print("CONNECTED TO TRADE STREAM", flush=True)
 
                 async for message in websocket:
                     data = json.loads(message)
