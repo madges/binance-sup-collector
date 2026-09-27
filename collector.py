@@ -1,8 +1,10 @@
 import asyncio
 import json
+import time
 import websockets
 
 WS_URL = "wss://fstream.binance.com/ws/btcusdt@bookTicker"
+LOG_INTERVAL = 10
 
 
 async def collect():
@@ -15,6 +17,8 @@ async def collect():
             async with websockets.connect(WS_URL) as websocket:
                 print("CONNECTED TO BINANCE", flush=True)
 
+                last_log_time = 0
+
                 async for message in websocket:
                     data = json.loads(message)
 
@@ -22,11 +26,15 @@ async def collect():
                     ask = float(data["a"])
                     mid = (bid + ask) / 2
 
-                    print(
-                        f"BTCUSDT | bid={bid:.2f} | "
-                        f"ask={ask:.2f} | mid={mid:.2f}",
-                        flush=True,
-                    )
+                    current_time = time.time()
+
+                    if current_time - last_log_time >= LOG_INTERVAL:
+                        print(
+                            f"BTCUSDT | bid={bid:.2f} | "
+                            f"ask={ask:.2f} | mid={mid:.2f}",
+                            flush=True,
+                        )
+                        last_log_time = current_time
 
         except Exception as error:
             print(f"WebSocket error: {error}", flush=True)
