@@ -1,31 +1,89 @@
 import asyncio
 import json
+import time
 import websockets
 
 
-WS_URL = "wss://fstream.binance.com/ws/btcusdt@trade"
+WS_URL = (
+    "wss://fstream.binance.com/stream"
+    "?streams=btcusdt@bookTicker/btcusdt@trade"
+)
+
+LOG_INTERVAL = 10
 
 
 async def collect():
-    print("BINANCE-SUP TRADE TEST STARTED", flush=True)
+    print("BINANCE-SUP BTC COLLECTOR STARTED", flush=True)
 
     while True:
         try:
-            print("Connecting to BTCUSDT trade stream...", flush=True)
+            print("Connecting to Binance Futures...", flush=True)
 
             async with websockets.connect(WS_URL) as websocket:
-                print("CONNECTED TO TRADE STREAM", flush=True)
+                print("CONNECTED TO BINANCE FUTURES", flush=True)
+
+                last_log_time = time.time()
+
+                latest_bid = None
+                latest_ask = None
+
+                trade_count = 0
+                trade_volume = 0.0
+                buy_volume = 0.0
+                sell_volume = 0.0
 
                 async for message in websocket:
-                    data = json.loads(message)
+                    message_data = json.loads(message)
 
-                    print(
-                        f"TRADE | "
-                        f"price={data['p']} | "
-                        f"quantity={data['q']} | "
-                        f"maker={data['m']}",
-                        flush=True,
-                    )
+                    stream = message_data["stream"]
+                    data = message_data["data"]
+
+                    # Best bid / ask
+                    if stream.lower().endswith("@bookticker"):
+                        latest_bid = float(data["b"])
+                        latest_ask = float(data["a"])
+
+                    # Individual trades
+                    elif stream.lower().endswith("@trade"):
+                        quantity = float(data["q"])
+
+                        trade_count += 1
+                        trade_volume += quantity
+
+                        # m=True:
+                        # buyer was maker -> aggressive seller
+                        if data["m"]:
+                            sell_volume += quantity
+                        else:
+                            buy_volume += quantity
+
+                    current_time = time.time()
+
+                    if (
+                        current_time - last_log_time >= LOG_INTERVAL
+                        and latest_bid is not None
+                        and latest_ask is not None
+                    ):
+                        mid = (latest_bid + latest_ask) / 2
+                        spread = latest_ask - latest_bid
+
+                        print(
+                            f"BTCUSDT | "
+                            f"mid={mid:.2f} | "
+                            f"spread={spread:.2f} | "
+                            f"trades={trade_count} | "
+                            f"volume={trade_volume:.4f} BTC | "
+                            f"buy={buy_volume:.4f} | "
+                            f"sell={sell_volume:.4f}",
+                            flush=True,
+                        )
+
+                        trade_count = 0
+                        trade_volume = 0.0
+                        buy_volume = 0.0
+                        sell_volume = 0.0
+
+                        last_log_time = current_time
 
         except Exception as error:
             print(f"WebSocket error: {error}", flush=True)
