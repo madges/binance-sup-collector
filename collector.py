@@ -11,9 +11,9 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 
 WS_URL = (
     "wss://fstream.binance.com/stream"
-    "?streams=btcusdt@bookTicker/"
-    "btcusdt@aggTrade/"
-    "btcusdt@kline_1m"
+    "?streams=btcusdt@bookTicker"
+    "/btcusdt@aggTrade"
+    "/btcusdt@kline_1m"
 )
 
 SAVE_INTERVAL = 10
