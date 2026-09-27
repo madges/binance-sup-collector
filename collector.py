@@ -2,7 +2,7 @@ import asyncio
 import json
 import websockets
 
-WS_URL = "wss://stream.binance.com:9443/ws/btcusdt@bookTicker"
+WS_URL = "wss://fstream.binance.com/ws/btcusdt@bookTicker"
 
 
 async def collect():
