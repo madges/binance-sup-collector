@@ -43,7 +43,7 @@ async def collect():
                         latest_ask = float(data["a"])
 
                     # Aggregated trades
-                    elif stream.endswith("@aggTrade"):
+                  elif stream.lower().endswith("@aggtrade"):
                         quantity = float(data["q"])
 
                         trade_count += 1
